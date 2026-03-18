@@ -2,15 +2,11 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -I include
 
-# 2. Detecção do Sistema Operacional
+# 2. Detecção do Sistema Operacional (Apenas para a extensão do executável)
 ifeq ($(OS),Windows_NT)
-	# Configurações para Windows
 	TARGET = main.exe
-	CLEAN_CMD = del /Q /F *.o src\*.o $(TARGET)
 else
-	# Configurações para Linux / Unix
 	TARGET = main
-	CLEAN_CMD = rm -f *.o src/*.o $(TARGET)
 endif
 
 # 3. Mapeamento de Arquivos
@@ -27,5 +23,6 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # 5. Regra de Limpeza
+# O w64devkit no Windows e o Linux entendem o comando 'rm' nativamente
 clean:
-	$(CLEAN_CMD)
+	rm -f $(OBJS) $(TARGET)
