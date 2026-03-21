@@ -1,4 +1,3 @@
-import java.util.Locale;
 import java.util.Scanner;
 
 class Cifra{
@@ -11,21 +10,25 @@ class Cifra{
         for(int i=0; i<original.length(); i++){
             char c = original.charAt(i);
 
-            if(c != ' '){
-                resultado = resultado + (char)(c+chave);
-            }else{
-                resultado = resultado + ' ';
+            if(c >= 32 && c <= 126){
+                c = (char)(c + chave);
+
+                if(c > 126) c -= 95;
             }
+            resultado += c;
         }
 
         return resultado;
     }
+
     public static void main(String[] args) {
-        Locale.setDefault(Locale.US);
+
         Scanner sc = new Scanner(System.in);
 
         while(sc.hasNextLine()){
-            System.out.println(criptografiaCesar(sc.nextLine()));
+            String entry = sc.nextLine();
+            if(entry.charAt(0) == 'F' && entry.charAt(1) == 'I' && entry.charAt(2) == 'M') break;
+            System.out.println(criptografiaCesar(entry));
         }
 
         sc.close();
