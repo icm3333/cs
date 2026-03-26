@@ -42,7 +42,7 @@ class Main{
       if(entry.charAt(i) == '.' || entry.charAt(i) == ',') dotCount++;
       if(!((entry.charAt(i) >= '0' && entry.charAt(i) <= '9') || (entry.charAt(i) == '-' && i == 0) || (entry.charAt(i) == ',' && dotCount == 1) || (entry.charAt(i) == '.' && dotCount == 1))) return "NAO";
     }
-    if(dotCount == 1){
+    if(dotCount == 1 || dotCount == 0){
       return "SIM";
     }else{
       return "NAO";
