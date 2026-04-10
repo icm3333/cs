@@ -22,13 +22,26 @@ char* inversao(char entry[]){
 
   return retorno;
 }
+void sanitize(char* str){
+  int i;
+  for(i=0; str[i] != '\0'; i++){
+    if(str[i] == '\n'){
+      int k = i;
+      while(str[k] != '\0'){
+        str[k] = str[k+1];
+        k++;
+      }
+    i--;
+    }
+  }
+}
 
 int main(){
   char entry[BUFFER_SIZE];
 
-  while(scanf("%s", &entry) != EOF){
+  while(fgets(entry, BUFFER_SIZE, stdin) != NULL){
     if(entry[0] == 'F' && entry[1] == 'I' && entry[2] == 'M') break;
-
+    sanitize(entry);
     char* retorno = inversao(entry);
 
     if(retorno != NULL){
