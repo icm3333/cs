@@ -238,9 +238,80 @@ void formatar_restaurante(Restaurante* r, char* b){
 // Colecao functions
 
 void ler_csv_colecao(Colecao_Restaurantes* c, char* path){
+	char buffer[256];
 
+	FILE* csv = fopen(path, "r");
+	if(csv == NULL) return;
+	fgets(buffer, sizeof(buffer), csv); //cabecalho
+
+	while(fgets(buffer, sizeof(buffer), csv) != NULL && c->tamanho < CSV_LINES){
+		Restaurante *r = parse_restaurante(buffer);
+		if(r == NULL) break;
+
+		c->restaurantes[c->tamanho++] = r;
+	}
+	fclose(csv);
 }
 
 Colecao_Restaurantes* ler_csv(){
+	Colecao_Restaurantes* cr = (Colecao_Restaurantes*) malloc(sizeof(Colecao_Restaurantes));
+	if (cr == NULL) return NULL;
 
+	cr->tamanho = 0;
+	cr->restaurantes = (Restaurante**) malloc(sizeof(Restaurante*)*CSV_LINES);
+	if (cr->restaurantes == NULL){
+		free(cr);
+		return NULL;
+	}
+
+	char* path = "/tmp/restaurantes.csv";
+	//char* path = "tmp/restaurantes.csv";
+	ler_csv_colecao(cr, path);
+	return cr;
+}
+
+void free_restaurante(Restaurante* r){
+	// limpa itens que tiverem alocacao dinamica
+	free(r->nome);
+	free(r->cidade);
+
+	//limpa os ponteiros "secundarios"/strings
+	for(int i=0; i< r->n_tipos_cozinha; i++){
+		free(r->tipos_cozinha[i]);
+	}
+	//limpa os ponteiros "primarios"/ ponteiros para as strings limpas acima
+	free(r->tipos_cozinha);
+
+	// limpa outras variaveis
+	free(r);
+}
+
+void free_colecao_restaurante(Colecao_Restaurantes* cr){
+	// limpa cada restaurante presente em restaurante**
+	for(int i=0; i< cr->tamanho; i++){
+		free_restaurante(cr->restaurantes[i]);
+	}
+	// limpa os ponteiros para cada restaurante.
+	free(cr->restaurantes);
+
+	free(cr);
+}
+
+int main(){
+	Colecao_Restaurantes* db = ler_csv();
+
+	char output[1024];
+	int buffer_id;
+	while(scanf("%d", &buffer_id) != EOF){
+		if(buffer_id == -1) break;
+
+		for(int i=0; i<db->tamanho; i++){
+			if(db->restaurantes[i]->id == buffer_id){
+				formatar_restaurante(db->restaurantes[i], output);
+				printf("%s\n", output);
+			}
+		}
+	}
+
+	free_colecao_restaurante(db);
 }
