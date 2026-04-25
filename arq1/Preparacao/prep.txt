@@ -1,0 +1,75 @@
+
+          | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F |
+mintermos |   |   | X | X |   |   | X | X |   |   |   |   | X |   | X | X |
+MAXTERMOS | X | X |   |   | X | X |   |   | X | X | X | X |   | X |   |   |
+
+
+1)a) SoP (a,b,c,d) = (a'b'c d') +(a'b'c d) + (a'b c d') +  (a'b c d ) + (a b c'd') + (a b c d') + (a b c d)
+
+  b) PoS (A,B,C,D) = (A+B+C+D) * (A+B+C+D') * (A+B'+C+D) * (A+B'+C+D') * (A'+B+C+D) * (A'+B+C+D') * (A'+B+C'+D) * (A'+B+C'+D') * (A'+B'+C+D')
+
+  c) Mapa presente na pasta com o nome MapaK_2c.jpg
+
+     Simplificacao = a'c + bc + abd'
+
+   d) Mapa presente na pasta com o nome MapaK_2d.jpg
+
+      Simplificacao = (a+c)*(a'+b)*(c+d')
+
+
+   e) S = !(!(a'c) * !(bc) * !(abd'))
+
+   f) S = !(!(a+c)+ !(a'+b)+ !(c+d'))
+
+
+2) Módulo de teste implementado em Verilog, código-fonte presente em Preparacao_02.v
+   A implementação em Logisim está no arquivo Preparacao_02.circ (utilizei o Logisim na versão 2.16.2.2, não me lembro qual a versão indicada em sala de aula (2.16.2.2 presente nos arquivos do Canvas ou 2.7.1 presente no site Sourceforge)).
+
+Tabela verdade obtida:
+x y | s
+0 0 | 0
+0 1 | 0
+1 0 | 0
+1 1 | 0
+
+3) Circuito implementado em Verilog, código-fonte presente em Preparacao_03.v
+   A implementação em Logisim está no arquivo Preparacao_03.circ, possui dois circuitos sendo "mux" a implementação do multiplexador, e "a" sendo a implementação de MUX ( MUX(a,b,c), MUX(NOT(b),NOT(a),c), NOT(c)).
+
+Tabela verdade obtida:
+a b c | s
+0 0 0 | 1
+0 0 1 | 0
+0 1 0 | 0
+0 1 1 | 1
+1 0 0 | 1
+1 0 1 | 0
+1 1 0 | 0
+1 1 1 | 1
+
+4) 3210(4) -> X(2)
+   
+   11 - 10 - 01 - 00 = 11100100(2)
+-------------------------------------
+   54(8) -> X(2)
+
+   101 - 100 = 00101100(2)
+-------------------------------------
+   11100100
+  +00101100
+
+r= (1)00010000
+
+resultado da soma = 00010000(2)
+
+5) Circuito implementado em Verilog, código-fonte presente em Preparacao_05.v
+   A implementação em Logisim está no arquivo Preparacao_05.circ
+
+Tabela verdade obtida:
+
+mX | a b | o
+m0 | 0 0 | 1
+m1 | 0 1 | 1
+m2 | 1 0 | 1
+m3 | 1 1 | 0
+
+S = (a'b') + (a'b) + (ab')
