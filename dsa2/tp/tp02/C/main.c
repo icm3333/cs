@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<stdbool.h>
-#include <stdlib.h>
+#include<stdlib.h>
+#include<string.h>
+#include<time.h>
 
 #define CSV_LINES 500
 
@@ -265,7 +267,7 @@ Colecao_Restaurantes* ler_csv(){
 	}
 
 	char* path = "/tmp/restaurantes.csv";
-	//char* path = "tmp/restaurantes.csv";
+	//char* path = "restaurantes.csv";
 	ler_csv_colecao(cr, path);
 	return cr;
 }
@@ -297,8 +299,29 @@ void free_colecao_restaurante(Colecao_Restaurantes* cr){
 	free(cr);
 }
 
+void selecao(Restaurante** r, int r_qtd, int* n_comparacoes, int* n_movimentacoes){
+	//strcmp retorna 0 ser for igual
+	//negativo ser a primeira string for menor
+	//maior que 0 se a primeira for maior'
+
+	for(int i=0; i< r_qtd-1; i++){
+		int menor = i;
+		for(int j=(i+1); j<r_qtd; j++){
+			(*n_comparacoes)++;
+			if(strcmp(r[j]->nome, r[menor]->nome) < 0) menor = j;
+		}
+		Restaurante* tmp = r[i];
+		r[i] = r[menor];
+		r[menor] = tmp;
+		(*n_movimentacoes) += 3;
+	}
+}
+
 int main(){
 	Colecao_Restaurantes* db = ler_csv();
+
+	Restaurante* r[CSV_LINES];
+	int r_qtd = 0;
 
 	char output[1024];
 	int buffer_id;
@@ -307,11 +330,27 @@ int main(){
 
 		for(int i=0; i<db->tamanho; i++){
 			if(db->restaurantes[i]->id == buffer_id){
-				formatar_restaurante(db->restaurantes[i], output);
-				printf("%s\n", output);
+				r[r_qtd++] = db->restaurantes[i];
+				break;
 			}
 		}
 	}
 
+	int n_comparacoes=0, n_movimentacoes=0;
+	clock_t start = clock();
+	selecao(r, r_qtd, &n_comparacoes, &n_movimentacoes);
+	clock_t end = clock();
+
+	for(int i = 0; i < r_qtd; i++){
+        formatar_restaurante(r[i], output);
+        printf("%s\n", output);
+    }
+
+	FILE* arq = fopen("8_selecao.txt", "w");
+	if(arq != NULL){
+		double tempo = (double)((end - start)) / CLOCKS_PER_SEC;
+		fprintf(arq, "8\t%d\t%d\t%lf\n", n_comparacoes, n_movimentacoes, tempo);
+		fclose(arq);
+	}
 	free_colecao_restaurante(db);
 }
