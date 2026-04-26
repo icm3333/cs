@@ -40,6 +40,25 @@ class Data{
 		sc.close();
 		return (new Data(ano, mes, dia));
 	}
+
+	/**
+	 Faz a comparacao entre duas datas, se a do objeto for 
+	 maior retorna 1, se forem igual 0, se for menor -1
+	 */
+	public int compareToD(Data d2){
+		//compara ano
+		if(this.ano > d2.ano) return 1;
+		if(this.ano < d2.ano) return -1;
+		//compara mes
+		if(this.mes > d2.mes) return 1;
+		if(this.mes < d2.mes) return -1;
+		//compara dia
+		if(this.dia > d2.dia) return 1;
+		if(this.dia < d2.dia) return -1;
+		//se nao entrou nos ifs sao iguais
+		return 0;
+		
+	}
 	
 	@Override
 	public String toString(){
@@ -136,6 +155,9 @@ class Restaurante{
 
 	public String getNome(){
 		return this.nome;
+	}
+	public Data getDataAbertura(){
+		return this.dataAbertura;
 	}
 
 	/**
@@ -382,6 +404,86 @@ class Ordenacao{
 	  }	
    }
 
+	private void swap(Restaurante[] array, int i, int j) {
+        Restaurante temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+        this.moves += 3;
+    }
+
+   public void heapsort(Restaurante[] a, int n){
+	  long inicio = System.currentTimeMillis();
+	  this.algoritimoUtilizado = "heapsort";
+
+	  //Alterar o vetor ignorando a posicao zero
+	  Restaurante[] tmp = new Restaurante[n + 1];
+	  for (int i = 0; i < n; i++) {
+            tmp[i+1] = a[i];
+            this.moves++;
+       }
+
+	   //Contrucao do heap
+	   for(int tamHeap = 2; tamHeap <= n; tamHeap++){
+         construir(tmp, tamHeap);
+		}
+
+		//Ordenacao propriamente dita
+		int tamHeap = n;
+		while (tamHeap > 1) {
+            swap(tmp, 1, tamHeap--);
+            reconstruir(tmp, tamHeap);
+        }
+
+		//Coloca os dados de volta no vetor a
+		for(int i = 0; i < n; i++){
+            a[i] = tmp[i+1];
+            this.moves++;
+        }
+      
+	  long fim = System.currentTimeMillis();
+	  this.tempoExecucao = fim - inicio;
+   }
+
+	private int comparar(Restaurante r, Restaurante r2){
+
+		this.comp++;
+		int comparacao = r.getDataAbertura().compareToD(r2.getDataAbertura());
+		if(comparacao == 0){
+			this.comp++;
+			return r.getNome().compareTo(r2.getNome());
+		}else{
+			return comparacao;
+		}
+	}
+
+   private void construir(Restaurante[] tmp, int tamHeap){
+      for(int i = tamHeap; i > 1 && comparar(tmp[i], tmp[i/2]) > 0; i /= 2){
+         swap(tmp, i, i/2);
+      }
+   }
+   
+   private void reconstruir(Restaurante[] tmp, int tamHeap){
+      int i = 1;
+      while(i <= (tamHeap/2)){
+         int filho = getMaiorFilho(tmp, i, tamHeap);
+         if(comparar(tmp[i], tmp[filho]) < 0){
+            swap(tmp, i, filho);
+            i = filho;
+         }else{
+            i = tamHeap;
+         }
+      }
+   }
+   public int getMaiorFilho(Restaurante[] tmp, int i, int tamHeap){
+      int filho;
+      if (2*i == tamHeap || comparar(tmp[2*i],tmp[2*i +1])>0){
+         filho = 2*i;
+      } else {
+         filho = 2*i + 1;
+      }
+      return filho;
+   }
+
 	@Override
 	public String toString(){
 		return this.matricula + "\t" + this.comp + "\t" + this.moves + "\t" + this.tempoExecucao +" ms";
@@ -423,7 +525,7 @@ class Main{
 		}
 
 		Ordenacao a = new Ordenacao();
-		a.mergesort(array_usuario, n);
+		a.heapsort(array_usuario, n);
 
 		for(int i=0; i<n; i++){
 			System.out.println(array_usuario[i]);
