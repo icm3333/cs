@@ -1,6 +1,9 @@
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 class Data{
 	private int ano, mes, dia;
@@ -109,6 +112,14 @@ class Restaurante{
 
 	public int getId(){
 		return this.id;
+	}
+
+	public String getCidade(){
+		return this.cidade;
+	}
+
+	public String getNome(){
+		return this.nome;
 	}
 
 	/**
@@ -251,12 +262,73 @@ class ColecaoRestaurantes{
 	}
 }
 
+class Ordenacao{
+	private long tempoExecucao;
+	private String matricula;
+	private int comp, moves;
+	private String algoritimoUtilizado;
+	
+	public Ordenacao(){
+		this.comp = 0;
+		this.moves = 0;
+		this.matricula = "892486";
+	}
+	public Ordenacao(String algoritimoUtilizado){
+		this.comp = 0;
+		this.moves = 0;
+		this.matricula = "892486";
+		this.algoritimoUtilizado = algoritimoUtilizado;
+	}
+	/*
+	 compareTo - 0 Se for igual // -1 se a segunda string for menor // 1 se a string for maior
+	 */
+	/**
+	 realiza insercao por insercao utilizando o atributo Cidade como chave
+	 */
+	public void insercao(Restaurante[] restaurantes, int tamanho){
+		long inicio = System.currentTimeMillis();
+		for(int i=1; i<tamanho; i++){
+			Restaurante tmp = restaurantes[i]; this.moves++;
+			int j=i-1;
+			while((j>=0) && (restaurantes[j].getCidade().compareTo(tmp.getCidade())>0)){
+				this.comp++;
+				restaurantes[j+1] = restaurantes[j]; this.moves++;
+				j--;
+			}
+			restaurantes[j+1] = tmp; this.moves++;
+		}
+		long fim = System.currentTimeMillis();
+		this.tempoExecucao = fim - inicio;
+		this.algoritimoUtilizado = "insercao";
+	}
+
+	@Override
+	public String toString(){
+		return this.matricula + "\t" + this.comp + "\t" + this.moves + "\t" + this.tempoExecucao +" ms";
+	}
+
+	public void gerarTxt(){
+	String arq = this.matricula + "_" + this.algoritimoUtilizado + ".txt";
+
+		try (BufferedWriter saida = new BufferedWriter(new FileWriter(arq))) {
+        saida.write(this.toString());
+        saida.newLine();
+    } catch(IOException e) {
+         
+    }
+	}
+}
+
+
 class Main{
+
 	public static void main(String[] args){
 		Scanner sc = new Scanner(System.in);
 
 		ColecaoRestaurantes db = ColecaoRestaurantes.lerCsv();
 		Restaurante[] arr = db.getRestaurantes();
+		Restaurante[] array_usuario = new Restaurante[500];
+		int n = 0; 
 		
 		while(sc.hasNext()){
 			int idS = sc.nextInt();
@@ -264,7 +336,7 @@ class Main{
 
 			for(int i=0; i<db.getTamanho(); i++){
 				if(arr[i].getId() == idS){
-					System.out.println(arr[i]);
+					array_usuario[n++] = arr[i];
 					break;
 				}
 			}
@@ -273,3 +345,45 @@ class Main{
 		sc.close();
 	}
 }
+
+/*  Codigo da pesquisa sequencial
+
+
+sc.nextLine(); // limpa quebra de linha do buffer
+//variaveis para o arquivo txt
+int comp = 0;
+		long tempo = 0l;
+		while(sc.hasNextLine()){
+			String entry = sc.nextLine();
+			if(entry.length() == 3 && entry.charAt(0) == 'F'  && entry.charAt(1) == 'I' && entry.charAt(2) == 'M')  break;
+
+			
+			// Pesquisa sequencial
+			long inicio = System.currentTimeMillis(); 
+			boolean encontrou = false;
+			for(int i=0; i<n; i++){
+				comp++;
+				if(array_usuario[i].getNome().compareTo(entry) == 0){
+					encontrou = true;
+					break;
+				} 
+			}
+			long fim = System.currentTimeMillis();
+			if(encontrou){
+				System.out.println("SIM");
+			}else{
+				System.out.println("NAO");
+			}
+			tempo += (fim-inicio);
+		}
+
+		String arq = "892486_sequencial.txt";
+		try (BufferedWriter saida = new BufferedWriter(new FileWriter(arq))) {
+        	saida.write("892486\t" + comp + "\t" + tempo);
+        	saida.newLine();
+    	} catch(IOException e) {
+         
+    	}
+
+
+*/
