@@ -91,6 +91,22 @@ class Restaurante{
 	private Hora horarioAbertura, horarioFechamento;
 	private Data dataAbertura;
 
+	public Restaurante(String nome, String cidade){
+		this.nome = nome;
+		this.cidade = cidade;
+
+		this.id = -1;
+		this.capacidade = -1;
+		this.faixaPreco = -1;
+		this.nome = nome;
+		this.tiposCozinha = null;
+		this.avaliacao = -1;
+		this.isAberto = false;
+		this.horarioAbertura = null;
+		this.horarioFechamento = null;
+		this.dataAbertura = null;
+	}
+
 	public Restaurante(int id, int capacidade, int faixaPreco, 
 					   String nome, String cidade, String tiposCozinha,
 					   double avaliacao, boolean isAberto, 
@@ -302,6 +318,70 @@ class Ordenacao{
 		this.algoritimoUtilizado = "insercao";
 	}
 
+	public void mergesort(Restaurante[] a, int n) {
+	  long inicio = System.currentTimeMillis();
+	  this.algoritimoUtilizado = "mergesort";
+      mergesort(a, 0, n - 1);
+	  long fim = System.currentTimeMillis();
+	  this.tempoExecucao = fim - inicio;
+    }
+
+	private void mergesort(Restaurante[] a, int esq, int dir) {
+      if (esq < dir){
+         int meio = (esq + dir) / 2;
+         mergesort(a, esq, meio);
+         mergesort(a, meio + 1, dir);
+         intercalar(a, esq, meio, dir);
+      }
+   }
+
+   public void intercalar(Restaurante[] a, int esq, int meio, int dir){
+      int n1, n2, i, j, k;
+
+	  //Definir tamanho dos dois subarrays
+      n1 = meio-esq+1;
+      n2 = dir - meio;
+
+      Restaurante[] a1 = new Restaurante[n1+1];
+      Restaurante[] a2 = new Restaurante[n2+1];
+
+	  //Inicializar primeiro subarray
+      for(i = 0; i < n1; i++){
+         a1[i] = a[esq+i];
+		 this.moves++;
+      }
+
+	  //Inicializar segundo subarray
+      for(j = 0; j < n2; j++){
+         a2[j] = a[meio+j+1];
+		 this.moves++;
+      }
+
+	  //Sentinela no final dos dois arrays
+	  Restaurante sentinela = new Restaurante("{{{{}}}}", "{{{{}}}}"); // { valor ascii maior que todos os numeros/letras. igual a 'z'+1;
+	  a1[i] = a2[j] = sentinela;
+
+	  //Intercalacao propriamente dita
+      for(i = j = 0, k = esq; k <= dir; k++){
+		 this.comp++;
+		 int resultadoComparacao = a1[i].getCidade().compareTo(a2[j].getCidade());
+
+		 if(resultadoComparacao < 0){ // a1.cidade e menor
+			a[k] = a1[i++];
+		 }else if(resultadoComparacao == 0){ //empate, verifica pelo nome
+			this.comp++;
+			if(a1[i].getNome().compareTo(a2[j].getNome()) <= 0){
+				a[k] = a1[i++];
+			}else{
+				a[k] = a2[j++];
+			}
+		 }else{ // a1.cidade e maior
+			a[k] = a2[j++];
+		 }
+		 this.moves++;
+	  }	
+   }
+
 	@Override
 	public String toString(){
 		return this.matricula + "\t" + this.comp + "\t" + this.moves + "\t" + this.tempoExecucao +" ms";
@@ -342,6 +422,14 @@ class Main{
 			}
 		}
 
+		Ordenacao a = new Ordenacao();
+		a.mergesort(array_usuario, n);
+
+		for(int i=0; i<n; i++){
+			System.out.println(array_usuario[i]);
+		}
+
+		a.gerarTxt();
 		sc.close();
 	}
 }
