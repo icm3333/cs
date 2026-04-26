@@ -299,6 +299,10 @@ void free_colecao_restaurante(Colecao_Restaurantes* cr){
 	free(cr);
 }
 
+/**
+ SelectionSort utilizando como chave de comparacao o nome do restaurante.
+ Comparacao entre nomes realizada pela funcao strcmp da string.h
+ */
 void selecao(Restaurante** r, int r_qtd, int* n_comparacoes, int* n_movimentacoes){
 	//strcmp retorna 0 ser for igual
 	//negativo ser a primeira string for menor
@@ -315,6 +319,38 @@ void selecao(Restaurante** r, int r_qtd, int* n_comparacoes, int* n_movimentacoe
 		r[menor] = tmp;
 		(*n_movimentacoes) += 3;
 	}
+}
+
+/**
+ Pesquisa binaria utilizando de nome como chave de busca
+ Comparacao entre nomes realizada pela funcao strcmp da string.h
+ */
+bool pesquisa_binaria(Restaurante** r, int r_qtd, char* s, int* n_comparacoes){
+	bool resp = false;
+	int dir = r_qtd-1, esq = 0, meio;
+	while(esq <= dir){
+		meio = (esq + dir)/2;
+		if(strcmp(s, r[meio]->nome) == 0){
+			(*n_comparacoes)++;
+			resp = true;
+			esq = dir+1;
+		}else if(strcmp(s, r[meio]->nome) > 0){
+			(*n_comparacoes)+=2;
+			esq = meio+1;
+		}else{
+			dir = meio-1; 
+		}
+	}
+	return resp;
+}
+
+void sanitize(char* str){
+  for(int i=0; str[i] != '\0'; i++){
+    if(str[i] == '\n' || str[i] == '\r'){
+      str[i] = '\0';
+      break;
+    }
+  }
 }
 
 int main(){
@@ -335,21 +371,33 @@ int main(){
 			}
 		}
 	}
+	// Come os espaços em branco (incluindo \r, \n, tabs) deixados pelo scanf
+	scanf(" ");
 
+	//selecao para garantir que esta ordenado para pesquisa binaria
 	int n_comparacoes=0, n_movimentacoes=0;
-	clock_t start = clock();
 	selecao(r, r_qtd, &n_comparacoes, &n_movimentacoes);
-	clock_t end = clock();
+	n_comparacoes = 0;
 
-	for(int i = 0; i < r_qtd; i++){
-        formatar_restaurante(r[i], output);
-        printf("%s\n", output);
-    }
+	double tempo = 0.0;
 
-	FILE* arq = fopen("8_selecao.txt", "w");
+	char buffer[256];
+	while(fgets(buffer, 256, stdin) != NULL){
+		sanitize(buffer);
+		if(buffer[0] == 'F' && buffer[1] == 'I' && buffer[2] == 'M') break;
+		clock_t start = clock();
+		if(pesquisa_binaria(r, r_qtd, buffer, &n_comparacoes)){
+			printf("SIM\n");
+		}else{
+			printf("NAO\n");
+		}
+		clock_t end = clock();
+		tempo += (double)((end - start)) / CLOCKS_PER_SEC;
+	}
+
+	FILE* arq = fopen("892486_binaria.txt", "w");
 	if(arq != NULL){
-		double tempo = (double)((end - start)) / CLOCKS_PER_SEC;
-		fprintf(arq, "8\t%d\t%d\t%lf\n", n_comparacoes, n_movimentacoes, tempo);
+		fprintf(arq, "892486\t%d\t%lf\n", n_comparacoes, tempo);
 		fclose(arq);
 	}
 	free_colecao_restaurante(db);
