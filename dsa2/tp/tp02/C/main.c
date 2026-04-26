@@ -344,6 +344,85 @@ bool pesquisa_binaria(Restaurante** r, int r_qtd, char* s, int* n_comparacoes){
 	return resp;
 }
 
+/**
+ Algoritimo quicksort utilizando avaliacao como atributo principal, nome em caso de empate
+ Comparacao entre nomes realizada pela funcao strcmp da string.h
+ quicksort para chamar a funcao recursiva quicksortRec
+ */
+
+ void quicksortRec(Restaurante** r, int esq, int dir, int* n_comparacoes, int* n_movimentacoes){
+    int i = esq, j = dir;
+    Restaurante* pivo = r[(dir+esq)/2];
+
+    while (i <= j) {
+		(*n_comparacoes)+=3; // contabiliza a primeira comparacao
+        while ((r[i]->avaliacao < pivo->avaliacao) || (r[i]->avaliacao == pivo->avaliacao && strcmp(r[i]->nome, pivo->nome) < 0)){
+			i++;
+			(*n_comparacoes)+=3; 
+		}
+		(*n_comparacoes)+=3;
+        while ((r[j]->avaliacao > pivo->avaliacao) || (r[j]->avaliacao == pivo->avaliacao && strcmp(r[j]->nome, pivo->nome) > 0)){
+			j--;
+			(*n_comparacoes)+=3;
+		} 
+
+        if (i <= j) {
+            Restaurante* temp = r[i];
+            r[i] = r[j];
+            r[j] = temp;
+			(*n_movimentacoes) += 3;
+            i++; 
+			j--;
+        }
+    }
+    if (esq < j){
+		quicksortRec(r, esq, j, n_comparacoes, n_movimentacoes);
+		(*n_comparacoes)++;
+	} 
+    if (i < dir){
+		quicksortRec(r, i, dir, n_comparacoes, n_movimentacoes);
+		(*n_comparacoes)++;
+	}  
+ }
+
+void quicksort(Restaurante** r, int r_qtd, int* n_comparacoes, int* n_movimentacoes){
+	quicksortRec(r, 0, r_qtd-1, n_comparacoes, n_movimentacoes);
+ }
+
+ int getMaior(Restaurante** r, int r_qtd, int* n_movimentacoes) {
+    int maior = r[0]->capacidade;
+
+    for (int i = 0; i < r_qtd; i++) {
+		(*n_movimentacoes)++;
+        if(maior < r[i]->capacidade){
+        	maior = r[i]->capacidade;
+        }
+    }
+    return maior;
+}
+
+void countingsort(Restaurante** r, int r_qtd, int* n_comparacoes, int* n_movimentacoes) {
+    //Array para contar o numero de ocorrencias de cada elemento
+    int tamCount = getMaior(r, r_qtd, n_comparacoes) + 1;
+    int count[tamCount];
+    Restaurante* ordenado[r_qtd];
+
+    //Inicializar cada posicao do array de contagem 
+    for (int i = 0; i < tamCount; count[i] = 0, i++);
+
+    //Agora, o count[i] contem o numero de elemento iguais a i
+    for (int i = 0; i < r_qtd; count[r[i]->capacidade]++, i++);
+
+    //Agora, o count[i] contem o numero de elemento menores ou iguais a i
+    for(int i = 1; i < tamCount; count[i] += count[i-1], i++);
+
+    //Ordenando
+    for(int i = r_qtd-1; i >= 0; ordenado[count[r[i]->capacidade]-1] = r[i], count[r[i]->capacidade]--, i--, (*n_movimentacoes)++);
+
+    //Copiando para o array original
+    for(int i = 0; i < r_qtd; r[i] = ordenado[i], i++, (*n_movimentacoes)++);
+}
+
 void sanitize(char* str){
   for(int i=0; str[i] != '\0'; i++){
     if(str[i] == '\n' || str[i] == '\r'){
@@ -371,33 +450,22 @@ int main(){
 			}
 		}
 	}
-	// Come os espaços em branco (incluindo \r, \n, tabs) deixados pelo scanf
-	scanf(" ");
 
-	//selecao para garantir que esta ordenado para pesquisa binaria
+
 	int n_comparacoes=0, n_movimentacoes=0;
-	selecao(r, r_qtd, &n_comparacoes, &n_movimentacoes);
-	n_comparacoes = 0;
+	clock_t start = clock();
+	countingsort(r, r_qtd, &n_comparacoes, &n_movimentacoes);
+	clock_t end = clock();
 
-	double tempo = 0.0;
+	for(int i = 0; i < r_qtd; i++){
+        formatar_restaurante(r[i], output);
+        printf("%s\n", output);
+    }
 
-	char buffer[256];
-	while(fgets(buffer, 256, stdin) != NULL){
-		sanitize(buffer);
-		if(buffer[0] == 'F' && buffer[1] == 'I' && buffer[2] == 'M') break;
-		clock_t start = clock();
-		if(pesquisa_binaria(r, r_qtd, buffer, &n_comparacoes)){
-			printf("SIM\n");
-		}else{
-			printf("NAO\n");
-		}
-		clock_t end = clock();
-		tempo += (double)((end - start)) / CLOCKS_PER_SEC;
-	}
-
-	FILE* arq = fopen("892486_binaria.txt", "w");
+	FILE* arq = fopen("892486_countingsort.txt", "w");
 	if(arq != NULL){
-		fprintf(arq, "892486\t%d\t%lf\n", n_comparacoes, tempo);
+		double tempo = (double)((end - start)) / CLOCKS_PER_SEC;
+		fprintf(arq, "892486\t%d\t%d\t%lf\n", n_comparacoes, n_movimentacoes, tempo);
 		fclose(arq);
 	}
 	free_colecao_restaurante(db);
