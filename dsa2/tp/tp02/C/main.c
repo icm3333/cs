@@ -34,6 +34,43 @@ typedef struct{
 	int tamanho;
 } Colecao_Restaurantes;
 
+
+// implementacao da pilha
+
+typedef struct Celula {
+	Restaurante elemento;        // Elemento inserido na celula.
+	struct Celula* prox; // Aponta a celula prox.
+} Celula;
+
+Celula* topo = NULL;
+
+Celula* novaCelula(Restaurante elemento) {
+   Celula* nova = (Celula*) malloc(sizeof(Celula));
+   nova->elemento = elemento;
+   nova->prox = NULL;
+   return nova;
+}
+
+void inserir_pilha(Restaurante x) {
+   Celula* tmp = novaCelula(x);
+   tmp->prox = topo;
+   topo = tmp;
+   tmp = NULL;
+}
+
+Restaurante remover_pilha() {
+   if (topo != NULL) {
+   	Restaurante resp = topo->elemento;
+   	Celula* tmp = topo;
+   	topo = topo->prox;
+   	tmp->prox = NULL;
+  	free(tmp);
+   	tmp = NULL;
+   	return resp;
+   }
+}
+
+
 // Data functions
 
 /**
@@ -299,6 +336,14 @@ void free_colecao_restaurante(Colecao_Restaurantes* cr){
 	free(cr);
 }
 
+void free_pilha() {
+   while (topo != NULL) {
+      Celula* tmp = topo;
+      topo = topo->prox;
+      free(tmp);
+   }
+}
+
 /**
  SelectionSort utilizando como chave de comparacao o nome do restaurante.
  Comparacao entre nomes realizada pela funcao strcmp da string.h
@@ -432,6 +477,15 @@ void sanitize(char* str){
   }
 }
 
+void mostrar_pilha() {
+   Celula* i;
+   char buffer[512];
+   for(i = topo; i != NULL; i = i->prox) {
+      formatar_restaurante(&(i->elemento), buffer);
+	  printf("%s\n", buffer);
+   }
+}
+
 int main(){
 	Colecao_Restaurantes* db = ler_csv();
 
@@ -445,28 +499,27 @@ int main(){
 
 		for(int i=0; i<db->tamanho; i++){
 			if(db->restaurantes[i]->id == buffer_id){
-				r[r_qtd++] = db->restaurantes[i];
+				inserir_pilha(*(db->restaurantes[i]));
 				break;
 			}
 		}
 	}
-
-
-	int n_comparacoes=0, n_movimentacoes=0;
-	clock_t start = clock();
-	countingsort(r, r_qtd, &n_comparacoes, &n_movimentacoes);
-	clock_t end = clock();
-
-	for(int i = 0; i < r_qtd; i++){
-        formatar_restaurante(r[i], output);
-        printf("%s\n", output);
-    }
-
-	FILE* arq = fopen("892486_countingsort.txt", "w");
-	if(arq != NULL){
-		double tempo = (double)((end - start)) / CLOCKS_PER_SEC;
-		fprintf(arq, "892486\t%d\t%d\t%lf\n", n_comparacoes, n_movimentacoes, tempo);
-		fclose(arq);
+	int qtd_operacoes;
+	scanf("%d", &qtd_operacoes);
+	for(int i=0; i<qtd_operacoes; i++){
+		char operacao;
+		int id_operacao;
+		scanf(" %c", &operacao);
+		if(operacao == 'I'){
+			scanf("%d", &id_operacao);
+			inserir_pilha(*(db->restaurantes[id_operacao-1]));
+		}else if(operacao == 'R'){
+			Restaurante tmp = remover_pilha();
+			printf("(R)%s\n", tmp.nome);
+		}
 	}
+
+	mostrar_pilha();
+	free_pilha();
 	free_colecao_restaurante(db);
 }

@@ -500,7 +500,174 @@ class Ordenacao{
     }
 	}
 }
+class Celula{
+	Restaurante elemento;
+	Celula prox;
+	
+	public Celula(){
+		this.elemento = null;
+		this.prox = null;
+	}
 
+	public Celula(Restaurante r){
+		this.elemento = r;
+		this.prox = null;
+	}
+}
+class Lista{
+	private Celula primeiro;
+	private Celula ultimo;
+
+	public Lista(){
+		primeiro = new Celula();
+		ultimo = primeiro;
+	}
+
+	public void inserirInicio(Restaurante x){
+		Celula tmp = new Celula(x);
+		tmp.prox = primeiro.prox;
+		primeiro.prox = tmp;
+		if(primeiro==ultimo) ultimo = tmp;
+	}
+
+	public void inserirFim(Restaurante x) {
+		ultimo.prox = new Celula(x);
+		ultimo = ultimo.prox;
+	}
+
+	public Restaurante removerInicio(){
+		if (primeiro == ultimo)return null;
+
+      	Celula tmp = primeiro.prox;
+		Restaurante resp = tmp.elemento;
+
+		primeiro.prox = tmp.prox;
+
+		if (ultimo == tmp) {
+            ultimo = primeiro;
+        }
+
+		tmp.prox = null;
+        tmp = null;
+
+		return resp;
+	}
+
+	public Restaurante removerFim(){
+		if (primeiro == ultimo) return null;
+		
+      	Celula i;
+      	for(i = primeiro; i.prox != ultimo; i = i.prox);
+
+      	Restaurante resp = ultimo.elemento; 
+      	ultimo = i; 
+      	i = ultimo.prox = null;
+      
+		return resp;
+	}
+
+	public void inserir(Restaurante x, int pos){
+
+      int tamanho = tamanho();
+
+      if(pos < 0 || pos > tamanho){
+		return;
+      } else if (pos == 0){
+         inserirInicio(x);
+      } else if (pos == tamanho){
+         inserirFim(x);
+      } else {
+		   // Caminhar ate a posicao anterior a insercao
+         Celula i = primeiro;
+         for(int j = 0; j < pos; j++, i = i.prox);
+		
+         Celula tmp = new Celula(x);
+         tmp.prox = i.prox;
+         i.prox = tmp;
+         tmp = i = null;
+      }
+   }
+   public Restaurante remover(int pos) {
+      Restaurante resp;
+      int tamanho = tamanho();
+
+	  if (primeiro == ultimo){
+		return null;
+      } else if(pos < 0 || pos >= tamanho){
+		return null;
+      } else if (pos == 0){
+         resp = removerInicio();
+      } else if (pos == tamanho - 1){
+         resp = removerFim();
+      } else {
+		   // Caminhar ate a posicao anterior a insercao
+         Celula i = primeiro;
+         for(int j = 0; j < pos; j++, i = i.prox);
+		
+         Celula tmp = i.prox;
+         resp = tmp.elemento;
+         i.prox = tmp.prox;
+         tmp.prox = null;
+         i = tmp = null;
+      }
+
+		return resp;
+	}
+	public int tamanho() {
+      int tamanho = 0; 
+      for(Celula i = primeiro; i != ultimo; i = i.prox, tamanho++);
+      return tamanho;
+   }
+   public void mostrar() {
+        for (Celula i = primeiro.prox; i != null; i = i.prox) {
+            System.out.println(i.elemento.toString());
+        }
+    }
+}
+
+class FilaCircular{
+	private Restaurante[] arr;
+	private int primeiro, ultimo;
+	
+	public FilaCircular(){
+		this.arr = new Restaurante[6];
+		this.primeiro = this.ultimo = 0;
+	}
+
+	public void inserir(Restaurante x){
+		if (x == null) return;
+		if((ultimo+1)%6 == primeiro){
+			remover();
+		}
+		arr[ultimo] = x;
+		ultimo = (ultimo+1)%6;
+		System.out.println("(I)" + mediaAno());
+	}
+	public void remover(){
+		
+		if(primeiro == ultimo) return;
+
+		Restaurante tmp = arr[primeiro];
+		primeiro = (primeiro + 1)%6;
+
+		System.out.println("(R)" + tmp.getNome());
+	}
+	public int mediaAno(){
+		double sum = 0.0;
+		double counter = 0.0;
+		for(int i=primeiro; i!=ultimo; i=(i+1)%6){
+			Data tmp = arr[i].getDataAbertura();
+			sum += tmp.getAno();	
+			counter++;
+		}
+		return (int)Math.round((sum/counter));
+	}
+	public void mostrar(){
+		for(int i=primeiro; i!=ultimo; i=(i+1)%6){
+			System.out.println(arr[i]);
+		}
+	}
+}
 
 class Main{
 
@@ -509,8 +676,7 @@ class Main{
 
 		ColecaoRestaurantes db = ColecaoRestaurantes.lerCsv();
 		Restaurante[] arr = db.getRestaurantes();
-		Restaurante[] array_usuario = new Restaurante[500];
-		int n = 0; 
+		FilaCircular filaUsuario = new FilaCircular();
 		
 		while(sc.hasNext()){
 			int idS = sc.nextInt();
@@ -518,62 +684,24 @@ class Main{
 
 			for(int i=0; i<db.getTamanho(); i++){
 				if(arr[i].getId() == idS){
-					array_usuario[n++] = arr[i];
+					filaUsuario.inserir(arr[i]);
 					break;
 				}
 			}
 		}
 
-		Ordenacao a = new Ordenacao();
-		a.heapsort(array_usuario, n);
-
+		int n = sc.nextInt();
 		for(int i=0; i<n; i++){
-			System.out.println(array_usuario[i]);
+			String entry = sc.next();
+			if(entry.charAt(0) == 'I'){
+				int id = sc.nextInt();
+				filaUsuario.inserir(arr[id-1]);
+			}else if(entry.charAt(0) == 'R'){
+				filaUsuario.remover();
+			}
 		}
 
-		a.gerarTxt();
+		filaUsuario.mostrar();
 		sc.close();
 	}
 }
-
-/*  Codigo da pesquisa sequencial
-
-
-sc.nextLine(); // limpa quebra de linha do buffer
-//variaveis para o arquivo txt
-int comp = 0;
-		long tempo = 0l;
-		while(sc.hasNextLine()){
-			String entry = sc.nextLine();
-			if(entry.length() == 3 && entry.charAt(0) == 'F'  && entry.charAt(1) == 'I' && entry.charAt(2) == 'M')  break;
-
-			
-			// Pesquisa sequencial
-			long inicio = System.currentTimeMillis(); 
-			boolean encontrou = false;
-			for(int i=0; i<n; i++){
-				comp++;
-				if(array_usuario[i].getNome().compareTo(entry) == 0){
-					encontrou = true;
-					break;
-				} 
-			}
-			long fim = System.currentTimeMillis();
-			if(encontrou){
-				System.out.println("SIM");
-			}else{
-				System.out.println("NAO");
-			}
-			tempo += (fim-inicio);
-		}
-
-		String arq = "892486_sequencial.txt";
-		try (BufferedWriter saida = new BufferedWriter(new FileWriter(arq))) {
-        	saida.write("892486\t" + comp + "\t" + tempo);
-        	saida.newLine();
-    	} catch(IOException e) {
-         
-    	}
-
-
-*/
