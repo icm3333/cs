@@ -1,17 +1,19 @@
-void mergesort(){
-  merge(0, n-1);
+#include "merge.h"
+
+void mergesort(int *array, int n){
+  merge(array, 0, n-1);
 }
 
-void merge(int left, int right){
+void merge(int *array , int left, int right){
   if(left < right){
     int mid = (left+right)/2;
-    merge(left, mid);
-    merge(mid+1, right);
-    inter(left, mid, right);
+    merge(array, left, mid);
+    merge(array, mid+1, right);
+    inter(array, left, mid, right);
   }
 }
 
-void inter(int left, int mid, int right){
+void inter(int *array, int left, int mid, int right){
   int nLeft = (mid+1) - left;
   int nRight= right - mid;
 

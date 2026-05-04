@@ -1,8 +1,10 @@
-void quicksort(){
-  quick(0, n-1);
+#include "quick.h"
+
+void quicksort(int *array, int n){
+  quick(array, 0, n-1);
 }
 
-void quick(int left, int right){
+void quick(int *array,int left, int right){
   int i = left;
   int j = right;
   int pivot = array[(i+j)/2];
@@ -16,6 +18,6 @@ void quick(int left, int right){
       j--;
     }
   }
-    if(left < j) quick(left, j);
-    if(i < dir)  quick(i, right);
+    if(left < j) quick(array, left, j);
+    if(i < right)  quick(array, i, right);
 }

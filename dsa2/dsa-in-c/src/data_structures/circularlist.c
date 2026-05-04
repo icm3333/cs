@@ -1,8 +1,4 @@
-typedef struct{
-  int* array;
-  int first, last;
-  int size;
-} List;
+#include "circularlist.h"
 
 List a;
 

@@ -5,7 +5,7 @@
     index 0, 4, 8 etc...
 */
 
-void shell(){
+void shell(int *array, int n){
   int h = 1;
 
   do{
@@ -15,12 +15,12 @@ void shell(){
   do{
     h /= 3;
     for(int key=0; key<h; key++){
-      insertionS(key, h);
+      insertionS(array, n, key, h);
     } 
   }while(h != 1);
 }
 
-void insertionS(int key, int h){
+void insertionS(int *array,int n, int key, int h){
   for(int i=(h+key); i<n; i+=h){
     int tmp = array[i];
     int j = i-h;
